@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "stddef.h": "c",
+        "kterminal.h": "c",
+        "fb.h": "c",
+        "kernel.h": "c",
+        "compare": "c"
+    },
+    "debug.onTaskErrors": "debugAnyway"
+}

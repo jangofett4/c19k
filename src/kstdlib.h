@@ -7,7 +7,15 @@
 
 void reverse(char* buffer, uint32_t length);
 
-void u64_dec_str(uint64_t data, char* buffer);
+uint32_t strlen(const char* buffer);
+
+void lpad(char* buffer, uint32_t length);
+void rpad(char* buffer, uint32_t length);
+
+void u64_to_str(uint64_t data, char* buffer);
+void f64_to_str(double data, char* buffer, int precision);
 void u64_hex_str(uint64_t data, char* buffer);
+
+void kmemcpy(char* from, char* to, uint32_t start, uint32_t size, uint32_t dstart);
 
 #endif

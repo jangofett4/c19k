@@ -46,8 +46,10 @@ SECTIONS
     } :data
  
     /* Discard unused sections from object files that may cause issues. */
+    /*
     /DISCARD/ : {
         *.o(*)
         *.a:*(*)
     }
+    */
 }

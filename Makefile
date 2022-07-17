@@ -13,7 +13,7 @@ OSFILE	= $(BIN)/os.iso
 
 # Compiler
 CC				= clang
-CFLAGS			= -O2 -g -Wall -Wextra -Wpedantic -pipe
+CFLAGS			= -ggdb -Wall -Wextra -Wpedantic -pipe
 INTERNALCFLAGS	= -I$(SRC) \
     -std=c17               \
     -ffreestanding         \
@@ -21,13 +21,10 @@ INTERNALCFLAGS	= -I$(SRC) \
     -fno-stack-check       \
     -fno-pic               \
     -mabi=sysv             \
-    -mno-80387             \
-    -mno-mmx               \
     -mno-3dnow             \
-    -mno-sse               \
-    -mno-sse2              \
     -mno-red-zone          \
     -mcmodel=kernel        \
+    -ggdb                  \
     -MMD
 
 LD				= clang
@@ -35,7 +32,8 @@ INTERNALLDFLAGS	= \
     -nostdlib                   \
     -static                     \
     -Wl,-z,max-page-size=0x1000 \
-    -Wl,-T,linker.ld
+    -Wl,-T,linker.ld            \
+    -ggdb
 
 .PHONY: all
 all: $(SRC) $(OBJ) $(BIN) $(ISO) $(KERNEL)
@@ -50,7 +48,7 @@ $(OSFILE): $(KERNEL)
 	./limine/limine-deploy $@
 
 qemu: $(OSFILE)
-	qemu-system-x86_64 $(OSFILE)
+	qemu-system-x86_64 $(OSFILE) -s -S
 
 $(KERNEL): $(OBJS)
 	$(LD) $(OBJS) $(LDFLAGS) $(INTERNALLDFLAGS) -o $@

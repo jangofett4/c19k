@@ -18,10 +18,8 @@ uint64_t fb_height(uint64_t fbnr);
 uint64_t fb_width(uint64_t fbnr);
 
 struct limine_framebuffer* fb_get(uint64_t fbnr);
+uint32_t* fb_get_buffer(uint64_t fbnr);
 
 void fb_putpixel(uint64_t fbnr, uint32_t x, uint32_t y, uint32_t color);
-
-void fb_putchar(uint64_t fbnr, uint32_t x, uint32_t y, char c, uint32_t color);
-void fb_putstr(uint64_t fbnr, uint32_t x, uint32_t y, const char* str, uint32_t color);
 
 #endif

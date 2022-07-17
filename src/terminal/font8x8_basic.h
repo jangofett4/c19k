@@ -1,3 +1,5 @@
+#ifndef __C19K_FONT8X8_BASIC_H__
+#define __C19K_FONT8X8_BASIC_H__
 /**
  * 8x8 monochrome bitmap fonts for rendering
  * Author: Daniel Hepper <daniel@hepper.net>
@@ -148,3 +150,4 @@ char font8x8_basic[128][8] = {
     { 0x6E, 0x3B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+007E (~)
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
 };
+#endif
