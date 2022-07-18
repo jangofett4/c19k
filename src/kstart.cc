@@ -19,11 +19,16 @@ const char *c19kmotd =
 #else
     "GNU CC " STRINGIZE(__GNUC__) "." STRINGIZE(__GNUC_MINOR__) "." STRINGIZE(__GNUC_PATCHLEVEL__) ", "
 #endif
-    "STDC " STRINGIZE(__STDC_VERSION__) "], "
+#ifdef __cplusplus
+    "C++ " STRINGIZE(__cplusplus)
+#else
+    "STDC " STRINGIZE(__STDC_VERSION__)
+#endif
+    "], "
     "Build Date " __DATE__ " " __TIME__
     "\n";
 
-void _start(void)
+extern "C" void _start(void)
 {
     // Be sure that we have a framebuffer to work on
     ASSERT_VOID(fb_check(0));
@@ -55,8 +60,11 @@ void _start(void)
     for (uint64_t i = 0; i < memmap_request.response->entry_count; i++)
     {
         struct limine_memmap_entry* entry = memmap_request.response->entries[i];
-        kterm_writef(&term, " $g%i$w -> $g%i$w ($g%i$w)\n", entry->base, entry->base + entry->length, entry->type);
+        kterm_writef(&term, " $g%x$w -> $g%x$w ($g%s$w)\n", entry->base, entry->base + entry->length, limine_memmap_type_string(entry->type));
     }
+
+    uint64_t usable = usable_memory_on_boot(memmap_request.response->entries, memmap_request.response->entry_count);
+    kterm_writef(&term, "Usable memory: %i Mib", usable / 1024 / 1024);
     
     kernel_halt_forever();
 }

@@ -85,3 +85,43 @@ void kernel_panic(const char *reason)
     }
     kernel_halt_forever();
 }
+
+
+/*
+#define LIMINE_MEMMAP_USABLE                 0
+#define LIMINE_MEMMAP_RESERVED               1
+#define LIMINE_MEMMAP_ACPI_RECLAIMABLE       2
+#define LIMINE_MEMMAP_ACPI_NVS               3
+#define LIMINE_MEMMAP_BAD_MEMORY             4
+#define LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE 5
+#define LIMINE_MEMMAP_KERNEL_AND_MODULES     6
+#define LIMINE_MEMMAP_FRAMEBUFFER            7
+*/
+
+static const char* limine_memmap_type_strings[] = 
+{
+    "USABLE",
+    "RESERVED",
+    "ACPI RECLAIMABLE",
+    "ACPI NVS",
+    "BAD MEMORY",
+    "BOOTLOADER RECLAIMABLE",
+    "KERNEL AND MODULES",
+    "FRAMEBUFFER",
+};
+
+const char* limine_memmap_type_string(uint32_t type)
+{
+    return limine_memmap_type_strings[type];
+}
+
+uint64_t usable_memory_on_boot(struct limine_memmap_entry** entries, uint64_t count)
+{
+    uint64_t len = 0;
+    for (uint64_t i = 0; i < count; i++)
+    {
+        if (entries[i]->type == 0)
+            len += entries[i]->length;
+    }
+    return len;
+}

@@ -3,8 +3,8 @@ OBJ = obj
 BIN = bin
 ISO = iso
 
-SRCS = $(wildcard $(SRC)/*.c) $(wildcard $(SRC)/**/*.c)
-OBJS = $(patsubst $(SRC)/%,$(OBJ)/%,$(SRCS:.c=.o))
+SRCS = $(wildcard $(SRC)/*.cc) $(wildcard $(SRC)/**/*.cc)
+OBJS = $(patsubst $(SRC)/%,$(OBJ)/%,$(SRCS:.cc=.o))
 
 OBJDIRS = $(dir $(OBJS))
 
@@ -12,10 +12,9 @@ KERNEL	= $(BIN)/kernel.elf
 OSFILE	= $(BIN)/os.iso
 
 # Compiler
-CC				= clang
+CC				= clang++
 CFLAGS			= -ggdb -Wall -Wextra -Wpedantic -pipe
 INTERNALCFLAGS	= -I$(SRC) \
-    -std=c17               \
     -ffreestanding         \
     -fno-stack-protector   \
     -fno-stack-check       \
@@ -48,14 +47,14 @@ $(OSFILE): $(KERNEL)
 	./limine/limine-deploy $@
 
 qemu: $(OSFILE)
-	qemu-system-x86_64 $(OSFILE) -s -S
+	qemu-system-x86_64 $(OSFILE) -m 1024 -s -S 
 
 $(KERNEL): $(OBJS)
 	$(LD) $(OBJS) $(LDFLAGS) $(INTERNALLDFLAGS) -o $@
 
 # $< is first in dependency list
 # $@ is rule name
-$(OBJ)/%.o: $(SRC)/%.c
+$(OBJ)/%.o: $(SRC)/%.cc
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INTERNALCFLAGS) -c $< -o $@
 

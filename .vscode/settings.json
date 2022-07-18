@@ -6,5 +6,7 @@
         "kernel.h": "c",
         "compare": "c"
     },
-    "debug.onTaskErrors": "debugAnyway"
+    "debug.onTaskErrors": "debugAnyway",
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
 }

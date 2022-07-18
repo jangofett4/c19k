@@ -56,7 +56,7 @@ void kterm_putc(struct kernel_terminal* terminal, char chr)
         return;
     }
 
-    char* data = font8x8_basic[(int)chr];
+    uint8_t* data = font8x8_basic[(int)chr];
     uint32_t startx, starty;
     startx = terminal->x * 8;
     starty = terminal->y * 8;
@@ -111,8 +111,9 @@ void kterm_writef(struct kernel_terminal* terminal, const char* format, ...)
             else if (fmt == '%') kterm_putc(terminal, '%');
             else if (fmt == 'c') kterm_putc(terminal, (char)va_arg(args, uint32_t));
             else if (fmt == 'i') kterm_write_u64(terminal, va_arg(args, uint64_t));
+            else if (fmt == 'x') kterm_write_u64_hex(terminal, va_arg(args, uint64_t));
             else if (fmt == 'f') kterm_write_f64(terminal, va_arg(args, double));
-            else if (fmt == 's') kterm_write(terminal, va_arg(args, char*));
+            else if (fmt == 's') kterm_write(terminal, va_arg(args, const char*));
             else if (fmt == 'b') kterm_write(terminal, va_arg(args, int32_t) ? "true" : "false");
             ptr++;
             continue;
@@ -142,6 +143,13 @@ void kterm_write_u64(struct kernel_terminal* terminal, uint64_t data)
 {
     char buffer[22];
     u64_to_str(data, buffer);
+    kterm_write(terminal, buffer);
+}
+
+void kterm_write_u64_hex(struct kernel_terminal* terminal, uint64_t data)
+{
+    char buffer[22];
+    u64_to_base_string(data, 16, buffer);
     kterm_write(terminal, buffer);
 }
 

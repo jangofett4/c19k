@@ -48,6 +48,24 @@ void u64_to_str(uint64_t data, char *buffer)
     buffer[i] = '\0';
 }
 
+void u64_to_base_string(uint64_t data, uint32_t base, char* buffer)
+{
+    int i = 12;
+    int j = 0;
+
+    do{
+        buffer[i] = "0123456789ABCDEF"[data % base];
+        i--;
+        data = data / base;
+    }while(data > 0);
+
+    while(++i < 13){
+       buffer[j++] = buffer[i];
+    }
+
+    buffer[j] = 0;
+}
+
 // Very shitty, unoptimized and dumb double to string algorithm
 void f64_to_str(double data, char *buffer, int precision)
 {

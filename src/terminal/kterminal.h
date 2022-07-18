@@ -26,6 +26,7 @@ void kterm_clearcolor(struct kernel_terminal* terminal, uint32_t color);
 void kterm_putc(struct kernel_terminal* terminal, char chr);
 void kterm_write(struct kernel_terminal* terminal, const char* str);
 void kterm_write_u64(struct kernel_terminal* terminal, uint64_t data);
+void kterm_write_u64_hex(struct kernel_terminal* terminal, uint64_t data);
 void kterm_write_f64(struct kernel_terminal* terminal, float data);
 void kterm_write_hex(struct kernel_terminal* terminal, uint64_t data);
 void kterm_writef(struct kernel_terminal* terminal, const char* format, ...);
