@@ -11,26 +11,30 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
     .revision = 0
 };
 
-bool fb_check(uint64_t fbnr)
+KernelFramebuffer::KernelFramebuffer(uint32_t fbnr)
+{
+    fbnr = fbnr;
+    fbptr = framebuffer_request.response->framebuffers[fbnr];
+    rawptr = static_cast<uint32_t*>(fbptr->address);
+    width = fbptr->width;
+    height = fbptr->height;
+}
+
+KernelFramebuffer::~KernelFramebuffer()
+{
+}
+
+bool KernelFramebuffer::Check(uint64_t fbnr)
 {
     return framebuffer_request.response && framebuffer_request.response->framebuffer_count > fbnr;
 }
 
-uint64_t fb_width(uint64_t fbnr) { return framebuffer_request.response->framebuffers[fbnr]->width; }
-uint64_t fb_height(uint64_t fbnr) { return framebuffer_request.response->framebuffers[fbnr]->height; }
+uint64_t KernelFramebuffer::GetWidth() const { return width; }
+uint64_t KernelFramebuffer::GetHeight() const { return height; }
 
-struct limine_framebuffer* fb_get(uint64_t fbnr)
-{
-    return framebuffer_request.response->framebuffers[fbnr];
-}
+uint32_t* KernelFramebuffer::Raw() const { return static_cast<uint32_t*>(fbptr->address); }
 
-uint32_t* fb_get_buffer(uint64_t fbnr)
+void KernelFramebuffer::PutPixel(uint32_t x, uint32_t y, uint32_t color)
 {
-    return (uint32_t*)framebuffer_request.response->framebuffers[fbnr]->address;
-}
-
-void fb_putpixel(uint64_t fbnr, uint32_t x, uint32_t y, uint32_t color)
-{
-    uint64_t width = framebuffer_request.response->framebuffers[fbnr]->width;
-    ((uint32_t*)framebuffer_request.response->framebuffers[fbnr]->address)[width * y + x] = color;
+    rawptr[width * y + x] = color;
 }

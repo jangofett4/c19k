@@ -15,10 +15,13 @@ OSFILE	= $(BIN)/os.iso
 CC				= clang++
 CFLAGS			= -ggdb -Wall -Wextra -Wpedantic -pipe
 INTERNALCFLAGS	= -I$(SRC) \
+    -std=c++20             \
     -ffreestanding         \
     -fno-stack-protector   \
     -fno-stack-check       \
     -fno-pic               \
+	-fno-exceptions	       \
+	-fno-rtti              \
     -mabi=sysv             \
     -mno-3dnow             \
     -mno-red-zone          \

@@ -1,8 +1,10 @@
 #include "kernel.h"
 #include "kassert.h"
+#include "kstdlib.h"
 
 #include "framebuffer/fb.h"
 #include "terminal/kterminal.h"
+#include "memory/paging.h"
 
 #include "limine.h"
 
@@ -31,10 +33,13 @@ const char *c19kmotd =
 extern "C" void _start(void)
 {
     // Be sure that we have a framebuffer to work on
-    ASSERT_VOID(fb_check(0));
+    ASSERT_VOID(KernelFramebuffer::Check(0));
+
+    KernelFramebuffer framebuffer(0);   // Open first framebuffer
+    KernelTerminal terminal(0);         // Open first terminal
 
     struct kernel_terminal term;
-    kterm_setup(&term, 0);
+    kterm_setup(&term, &framebuffer);
     kernel_setup_panic(&term);
 
 
@@ -64,7 +69,18 @@ extern "C" void _start(void)
     }
 
     uint64_t usable = usable_memory_on_boot(memmap_request.response->entries, memmap_request.response->entry_count);
-    kterm_writef(&term, "Usable memory: %i Mib", usable / 1024 / 1024);
+    kterm_writef(&term, "Usable memory: %i Mib\n", usable / 1024 / 1024);
+
+    uint64_t cr3data;
+    __asm__ volatile("movq %%cr3, %[Var]" : [Var] "=r" (cr3data));
+    uint64_t* cr3 = reinterpret_cast<uint64_t*>(cr3data);
+    kterm_writef(&term, "CR3: *%x, (%x)", (uint64_t*)cr3, cr3data);
+
+    // cr3 is currently pointing at the start of PML4
     
+
+    // page_directory_t page_directory;
+    // kmemcpy((char*)cr3, (char*)&page_directory, 0, sizeof(page_directory_t), 0);
+
     kernel_halt_forever();
 }

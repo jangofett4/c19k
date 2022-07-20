@@ -5,10 +5,18 @@
 
 #include <stdarg.h>
 
-void kterm_setup(struct kernel_terminal* terminal, uint64_t fbnr)
+KernelTerminal::KernelTerminal(uint64_t fbnr)
 {
-    uint64_t w = fb_width(fbnr);
-    uint64_t h = fb_height(fbnr);
+
+}
+
+KernelTerminal::~KernelTerminal()
+{}
+
+void kterm_setup(struct kernel_terminal* terminal, KernelFramebuffer* fb)
+{
+    uint64_t w = fb->GetWidth();
+    uint64_t h = fb->GetHeight();
     terminal->rows = h / 8;
     terminal->columns = w / 8;
     terminal->x = 0;
@@ -19,8 +27,9 @@ void kterm_setup(struct kernel_terminal* terminal, uint64_t fbnr)
     terminal->text_color = FB_WHITE_PIXEL;
     terminal->padding_top = 0;
     terminal->padding_bottom = 0;
-    terminal->_fbnr = fbnr;
-    terminal->_buffer = fb_get_buffer(0);
+    terminal->fb = fb;
+    // terminal->_fbnr = fbnr;
+    // terminal->_buffer = fb_get_buffer(0);
     terminal->_bufsize = w * h * 4;
 }
 
@@ -34,7 +43,7 @@ void kterm_clear(struct kernel_terminal* terminal)
 {
     for (uint32_t x = 0; x < terminal->columns; x++)
         for (uint32_t y = 0; y < terminal->rows; y++)
-            fb_putpixel(terminal->_fbnr, x, y, terminal->back_color);
+            terminal->fb->PutPixel(x, y, terminal->back_color);
     terminal->x = 0;
     terminal->y = 0;
 }
@@ -43,7 +52,7 @@ void kterm_clearcolor(struct kernel_terminal* terminal, uint32_t color)
 {
     for (uint32_t x = 0; x < terminal->columns; x++)
         for (uint32_t y = 0; y < terminal->rows; y++)
-            fb_putpixel(terminal->_fbnr, x, y, color);
+            terminal->fb->PutPixel(x, y, color);
     terminal->x = 0;
     terminal->y = 0;
 }
@@ -63,14 +72,14 @@ void kterm_putc(struct kernel_terminal* terminal, char chr)
     for (int i = 0; i < 8; i++)
     {
         char row = data[i];
-        fb_putpixel(terminal->_fbnr, startx + 0, starty + i, row >> 0 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 1, starty + i, row >> 1 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 2, starty + i, row >> 2 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 3, starty + i, row >> 3 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 4, starty + i, row >> 4 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 5, starty + i, row >> 5 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 6, starty + i, row >> 6 & 1 ? terminal->text_color : terminal->back_color);
-        fb_putpixel(terminal->_fbnr, startx + 7, starty + i, row >> 7 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 0, starty + i, row >> 0 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 1, starty + i, row >> 1 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 2, starty + i, row >> 2 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 3, starty + i, row >> 3 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 4, starty + i, row >> 4 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 5, starty + i, row >> 5 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 6, starty + i, row >> 6 & 1 ? terminal->text_color : terminal->back_color);
+        terminal->fb->PutPixel(startx + 7, starty + i, row >> 7 & 1 ? terminal->text_color : terminal->back_color);
     }
     terminal->x++;
     if (terminal->x >= terminal->columns)
@@ -95,7 +104,7 @@ void kterm_write(struct kernel_terminal* terminal, const char* str)
     }
 }
 
-void kterm_writef(struct kernel_terminal* terminal, const char* format, ...)
+void kterm_writef(kernel_terminal* terminal, const char* format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -172,16 +181,17 @@ void kterm_newline(struct kernel_terminal* terminal)
     if (terminal->y >= terminal->rows)
     {
         kterm_scroll(terminal, 1);
-        terminal->y = terminal->rows - 1;
+        terminal->y--;
     }
 }
 
 void kterm_scroll(struct kernel_terminal* terminal, uint32_t lines)
 {
+    uint32_t* rawbuf = terminal->fb->Raw();
     uint32_t bytes_to_skip = lines * terminal->width * 4 * 8; // 4bpp * 8 height of the font * width of screen * how many lines to scroll
     kmemcpy(
-        (char*)terminal->_buffer,
-        (char*)terminal->_buffer,
+        (char*)rawbuf,
+        (char*)rawbuf,
         bytes_to_skip, 
         terminal->_bufsize - bytes_to_skip,
         0
