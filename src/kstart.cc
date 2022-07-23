@@ -74,10 +74,20 @@ extern "C" void _start(void)
     uint64_t cr3data;
     __asm__ volatile("movq %%cr3, %[Var]" : [Var] "=r" (cr3data));
     uint64_t* cr3 = reinterpret_cast<uint64_t*>(cr3data);
-    kterm_writef(&term, "CR3: *%x, (%x)", (uint64_t*)cr3, cr3data);
+    kterm_writef(&term, "CR3: *%x, (%x)\n", (uint64_t*)cr3, cr3data);
 
     // cr3 is currently pointing at the start of PML4
-    
+    for (uint64_t i = 0; i < 512; i++)
+    {
+        uint64_t entry = cr3[i];
+        if (entry & 1)
+            kterm_writef(&term, "PML4E %i = PRESENT\n");
+        else
+        {
+            kterm_writef(&term, "PML4E ENDS AT %i\n", i);
+            break;
+        }
+    }
 
     // page_directory_t page_directory;
     // kmemcpy((char*)cr3, (char*)&page_directory, 0, sizeof(page_directory_t), 0);

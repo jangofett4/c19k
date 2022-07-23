@@ -3,25 +3,16 @@
 
 #include <stdint.h>
 
-struct page_t
-{
-    uint32_t present    : 1;
-    uint32_t rw         : 1;
-    uint32_t user       : 1;
-    uint32_t accessed   : 1;
-    uint32_t dirty      : 1;
-    uint32_t unused     : 7;
-    uint32_t frame      : 20;
-};
+#include "terminal/kterminal.h"
 
-struct page_table_t
+class PageManager
 {
-    page_t tables[1024];
-};
+    uint64_t* pml4base;
+public:
+    PageManager(uint64_t* pml4base);
+    ~PageManager();
 
-struct page_directory_t
-{
-    page_table_t* tables[1024];
+    void PagingInfo(KernelTerminal* terminal);
 };
 
 #endif
