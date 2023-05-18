@@ -63,5 +63,9 @@ $(OBJ)/%.o: $(SRC)/%.cc
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJ)
-	mkdir $(OBJ)
+	rm -rf $(OBJ) $(BIN) $(ISO)
+	mkdir -p $(OBJ) $(BIN) $(ISO)
+	cp ./limine/limine-cd.bin $(ISO)
+	cp ./limine/limine-cd-efi.bin $(ISO)
+	cp ./limine/limine.sys $(ISO)
+	cp limine.cfg $(ISO)
